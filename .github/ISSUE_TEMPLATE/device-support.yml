@@ -1,0 +1,51 @@
+name: Device support request
+description: Ask for on-device lighting support for a keyboard or mouse InputFX doesn't recognize yet.
+title: "Device support: <brand and model>"
+labels: ["device support"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every keyboard and mouse already works with screen effects, remaps, macros, auto tools and the on-screen games. This form is for lighting on the device itself.
+
+        In InputFX open **My devices** (tray menu), press **Copy device report** and paste it below.
+  - type: textarea
+    id: report
+    attributes:
+      label: Device report
+      description: Paste the text from Copy device report. It starts with "InputFX device report" and lists each device with its VID and PID.
+      placeholder: |
+        InputFX device report
+        Windows: Microsoft Windows NT 10.0.22631.0
+        - Keyboard: My Keyboard  VID 1234 PID 5678  [not supported yet]
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Brand and model
+      description: As printed on the box or the device, for example "Redragon K552".
+    validations:
+      required: true
+  - type: input
+    id: vendor-app
+    attributes:
+      label: Vendor app
+      description: Name and version of the manufacturer's lighting app, if there is one.
+  - type: dropdown
+    id: capture
+    attributes:
+      label: Can you record USB traffic?
+      description: A USBPcap recording of the vendor app changing one setting at a time makes support much easier. See docs/PROTOCOL.md.
+      options:
+        - "Yes, I can record with USBPcap"
+        - "Maybe, with instructions"
+        - "No"
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: Which lighting features matter most to you, wired or wireless, and so on.

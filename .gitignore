@@ -1,0 +1,14 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+dist/
+publish/
+.vs/
+*.user
+
+# Private USB recordings and local helper scripts
+captures/
+*.pcap
+*.pcapng
+tools/*
+!tools/pcap_dump.py

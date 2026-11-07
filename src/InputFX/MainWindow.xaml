@@ -1,0 +1,523 @@
+<Window x:Class="InputFX.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:InputFX"
+        Title="InputFX" Width="1020" Height="720" MinWidth="860" MinHeight="560"
+        WindowStartupLocation="CenterScreen" Background="#F4F5F7" FontFamily="Segoe UI" FontSize="13"
+        UseLayoutRounding="True" SnapsToDevicePixels="True">
+    <Window.Resources>
+        <SolidColorBrush x:Key="Accent" Color="#E8590C"/>
+        <SolidColorBrush x:Key="Ink" Color="#1B1F24"/>
+        <SolidColorBrush x:Key="Muted" Color="#5F6872"/>
+        <SolidColorBrush x:Key="Line" Color="#D8DCE1"/>
+        <Style TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource Ink}"/><Setter Property="VerticalAlignment" Value="Center"/></Style>
+        <Style x:Key="Hint" TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource Muted}"/><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="FontSize" Value="12"/></Style>
+        <Style x:Key="H" TargetType="TextBlock"><Setter Property="FontSize" Value="15"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Margin" Value="0,0,0,8"/></Style>
+        <Style TargetType="CheckBox"><Setter Property="Margin" Value="0,3,14,3"/><Setter Property="VerticalContentAlignment" Value="Center"/></Style>
+        <Style TargetType="ComboBox"><Setter Property="Height" Value="28"/><Setter Property="VerticalContentAlignment" Value="Center"/></Style>
+        <Style TargetType="TextBox"><Setter Property="Height" Value="28"/><Setter Property="VerticalContentAlignment" Value="Center"/><Setter Property="Padding" Value="4,0"/></Style>
+        <Style TargetType="Button">
+            <Setter Property="Height" Value="30"/><Setter Property="Padding" Value="14,0"/><Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Background" Value="White"/><Setter Property="BorderBrush" Value="{StaticResource Line}"/>
+        </Style>
+        <Style x:Key="Primary" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="{StaticResource Accent}"/><Setter Property="Foreground" Value="White"/><Setter Property="BorderBrush" Value="{StaticResource Accent}"/><Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style x:Key="Card" TargetType="Border"><Setter Property="Background" Value="White"/><Setter Property="BorderBrush" Value="{StaticResource Line}"/><Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="8"/><Setter Property="Padding" Value="16"/><Setter Property="Margin" Value="0,0,12,12"/></Style>
+        <Style TargetType="Slider"><Setter Property="VerticalAlignment" Value="Center"/><Setter Property="IsSnapToTickEnabled" Value="False"/></Style>
+    </Window.Resources>
+
+    <Grid Margin="16,12,16,12">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+
+        <!-- header -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="InputFX" FontSize="22" FontWeight="Bold" Foreground="{StaticResource Accent}" Margin="0,0,16,0"/>
+                <TextBlock Text="Profile" Margin="0,0,8,0" Foreground="{StaticResource Muted}"/>
+                <ComboBox x:Name="ProfileBox" Width="190" SelectionChanged="ProfileBox_Changed"/>
+                <Button x:Name="BtnNewProfile" Content="New" Margin="8,0,0,0" Click="NewProfile_Click"/>
+                <Button Content="Copy" Click="CopyProfile_Click"/>
+                <Button Content="Rename" Click="RenameProfile_Click"/>
+                <Button Content="Delete" Click="DeleteProfile_Click"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Button Content="My devices" Click="Devices_Click"/>
+                <Button x:Name="EcoBtn" Content="Background mode" Click="Eco_Click" ToolTip="Pauses effects, lights, audio and games so InputFX uses almost no power. Remaps, macros and the auto clicker keep working. Closes this window."/>
+                <TextBlock x:Name="StatusText" Style="{StaticResource Hint}" Margin="0,0,14,0" VerticalAlignment="Center"/>
+                <CheckBox x:Name="EnabledBox" Content="InputFX is ON" FontWeight="SemiBold" Checked="Enabled_Changed" Unchecked="Enabled_Changed" Margin="0"/>
+            </StackPanel>
+        </Grid>
+
+        <TabControl Grid.Row="1" x:Name="Tabs" Background="#F4F5F7" BorderThickness="0,1,0,0" BorderBrush="{StaticResource Line}" Padding="0,12,0,0">
+            <!-- ===================== SCREEN EFFECT ===================== -->
+            <TabItem Header="Screen explosion" Padding="12,6">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <WrapPanel x:Name="ScreenPanel" Orientation="Horizontal">
+                        <Border Style="{StaticResource Card}" Width="440">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H}" Text="Look"/>
+                                <CheckBox Content="Show the effect on screen" IsChecked="{Binding Screen.Enabled}"/>
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="110"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions><RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/></Grid.RowDefinitions>
+                                    <TextBlock Text="Style"/>
+                                    <ComboBox Grid.Column="1" x:Name="StyleBox" SelectedItem="{Binding Screen.Style}"/>
+                                    <TextBlock Grid.Row="1" Text="Colors"/>
+                                    <ComboBox Grid.Row="1" Grid.Column="1" x:Name="ColorModeBox" SelectedItem="{Binding Screen.ColorMode}"/>
+                                    <TextBlock Grid.Row="2" Text="Fixed color"/>
+                                    <DockPanel Grid.Row="2" Grid.Column="1">
+                                        <Button DockPanel.Dock="Right" Content="Pick…" Margin="8,0,0,0" Click="PickColor_Click"/>
+                                        <TextBox Text="{Binding Screen.Color, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </DockPanel>
+                                    <TextBlock Grid.Row="3" Text="Size"/>
+                                    <DockPanel Grid.Row="3" Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="48" TextAlignment="Right" Text="{Binding Screen.SizePercent, StringFormat={}{0}%}"/><Slider Minimum="30" Maximum="300" Value="{Binding Screen.SizePercent}"/></DockPanel>
+                                    <TextBlock Grid.Row="4" Text="Particles"/>
+                                    <DockPanel Grid.Row="4" Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="48" TextAlignment="Right" Text="{Binding Screen.Particles}"/><Slider Minimum="6" Maximum="160" Value="{Binding Screen.Particles}"/></DockPanel>
+                                    <TextBlock Grid.Row="5" Text="Duration"/>
+                                    <DockPanel Grid.Row="5" Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="48" TextAlignment="Right" Text="{Binding Screen.DurationMs, StringFormat={}{0}ms}"/><Slider Minimum="200" Maximum="2500" Value="{Binding Screen.DurationMs}"/></DockPanel>
+                                    <TextBlock Grid.Row="6" Text="Gravity"/>
+                                    <DockPanel Grid.Row="6" Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="48" TextAlignment="Right" Text="{Binding Screen.GravityPercent, StringFormat={}{0}%}"/><Slider Minimum="-50" Maximum="200" Value="{Binding Screen.GravityPercent}"/></DockPanel>
+                                </Grid>
+                                <WrapPanel Margin="0,6,0,0">
+                                    <CheckBox Content="Shockwave ring" IsChecked="{Binding Screen.Shockwave}"/>
+                                    <CheckBox Content="Bright flash" IsChecked="{Binding Screen.Flash}"/>
+                                </WrapPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Button Style="{StaticResource Primary}" Content="Test explosion" Click="TestFx_Click"/>
+                                    <TextBlock Style="{StaticResource Hint}" Text="Fires 1.5 s later at your mouse pointer." VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Card}" Width="440">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H}" Text="When it happens"/>
+                                <WrapPanel>
+                                    <CheckBox Content="Keyboard keys" IsChecked="{Binding Screen.OnKeys}"/>
+                                    <CheckBox Content="Left click" IsChecked="{Binding Screen.OnMouseLeft}"/>
+                                    <CheckBox Content="Right click" IsChecked="{Binding Screen.OnMouseRight}"/>
+                                    <CheckBox Content="Middle click" IsChecked="{Binding Screen.OnMouseMiddle}"/>
+                                    <CheckBox Content="Side buttons" IsChecked="{Binding Screen.OnMouseSide}"/>
+                                    <CheckBox Content="Scroll wheel" IsChecked="{Binding Screen.OnWheel}"/>
+                                </WrapPanel>
+                                <Grid Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="140"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions><RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/></Grid.RowDefinitions>
+                                    <TextBlock Text="Key effect appears at"/>
+                                    <ComboBox Grid.Column="1" x:Name="KeyPosBox" SelectedValuePath="Tag" SelectedValue="{Binding Screen.KeyPosition}">
+                                        <ComboBoxItem Tag="Cursor" Content="Mouse pointer"/>
+                                        <ComboBoxItem Tag="Caret" Content="Text cursor (falls back to pointer)"/>
+                                        <ComboBoxItem Tag="WindowCenter" Content="Center of the active window"/>
+                                        <ComboBoxItem Tag="Random" Content="Random spot on screen"/>
+                                    </ComboBox>
+                                    <TextBlock Grid.Row="1" Text="Key filter"/>
+                                    <ComboBox Grid.Row="1" Grid.Column="1" SelectedValuePath="Tag" SelectedValue="{Binding Screen.KeyFilterMode}">
+                                        <ComboBoxItem Tag="All" Content="Every key"/>
+                                        <ComboBoxItem Tag="Only" Content="Only the keys listed below"/>
+                                        <ComboBoxItem Tag="Except" Content="All keys except the ones listed below"/>
+                                    </ComboBox>
+                                    <TextBlock Grid.Row="2" Text="Keys (A, Space, F5…)"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Screen.KeyFilterList, UpdateSourceTrigger=PropertyChanged}"/>
+                                </Grid>
+                                <WrapPanel Margin="0,8,0,0">
+                                    <CheckBox Content="Ignore Ctrl/Shift/Alt/Win alone" IsChecked="{Binding Screen.IgnoreModifiers}"/>
+                                    <CheckBox Content="Ignore held-key repeat" IsChecked="{Binding Screen.IgnoreAutoRepeat}"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Card}" Width="440">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H}" Text="Sound"/>
+                                <CheckBox Content="Play a boom with the effect" IsChecked="{Binding Screen.Sound}"/>
+                                <CheckBox Content="Also on keyboard keys (can get loud when typing)" IsChecked="{Binding Screen.SoundOnKeys}"/>
+                                <DockPanel Margin="0,8,0,0"><TextBlock DockPanel.Dock="Left" Width="70" Text="Volume"/><TextBlock DockPanel.Dock="Right" Width="48" TextAlignment="Right" Text="{Binding Screen.VolumePercent, StringFormat={}{0}%}"/><Slider Minimum="0" Maximum="100" Value="{Binding Screen.VolumePercent}"/></DockPanel>
+                                <TextBlock Style="{StaticResource Hint}" Margin="0,8,0,0" Text="Effects show on the desktop and in borderless-windowed games. Exclusive-fullscreen games hide overlays, so use the keyboard lighting tab for those."/>
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ===================== KEYBOARD / MOUSE LIGHTING ===================== -->
+            <TabItem Header="Keyboard &amp; mouse lights" Padding="12,6">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <WrapPanel Orientation="Horizontal">
+                        <Border Style="{StaticResource Card}" Width="900">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,8">
+                                    <TextBlock DockPanel.Dock="Left" Style="{StaticResource H}" Text="Preview" Margin="0,0,16,0"/>
+                                    <RadioButton x:Name="PrevBuiltIn" Content="Built-in mode" GroupName="prev" IsChecked="True" Margin="0,0,14,0" Checked="Prev_Changed" VerticalAlignment="Center"/>
+                                    <RadioButton x:Name="PrevStream" Content="Custom explosion stream" GroupName="prev" Checked="Prev_Changed" VerticalAlignment="Center"/>
+                                    <TextBlock Style="{StaticResource Hint}" HorizontalAlignment="Right" Text="Approximate. Press real keys to see them react." TextAlignment="Right"/>
+                                </DockPanel>
+                                <local:KbPreview x:Name="Preview"/>
+                                <TextBlock x:Name="PreviewCaption" Style="{StaticResource Hint}" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" Width="440">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H}" Text="Built-in modes (smooth, zero delay)"/>
+                                <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,8" Text="These run inside the keyboard itself, so they are perfectly smooth. 'Reaction' lights the keys you press. Pick one and the keyboard keeps it, even with InputFX closed."/>
+                                <ListBox x:Name="KbModeList" Height="250" SelectionChanged="KbModeList_Changed"/>
+                                <Grid Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="90"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions><RowDefinition Height="30"/><RowDefinition Height="30"/></Grid.RowDefinitions>
+                                    <TextBlock Text="Speed"/>
+                                    <DockPanel Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="48" TextAlignment="Right" Text="{Binding Keyboard.HwSpeed}"/><Slider Minimum="0" Maximum="4" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding Keyboard.HwSpeed}"/></DockPanel>
+                                    <TextBlock Grid.Row="1" Text="Brightness"/>
+                                    <DockPanel Grid.Row="1" Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="48" TextAlignment="Right" Text="{Binding Keyboard.HwBrightness}"/><Slider Minimum="0" Maximum="4" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding Keyboard.HwBrightness}"/></DockPanel>
+                                </Grid>
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Button Style="{StaticResource Primary}" Content="Use this mode" Click="KbUseMode_Click"/>
+                                    <Button Content="Restore original" Click="KbRestore_Click"/>
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Hint}" Margin="0,6,0,0" Text="Speed and brightness (0 to 4) are saved into the keyboard together with the mode when you press Use this mode. Writes take about a second. Close the EXCALIBUR Software app first."/>
+                                <TextBlock x:Name="LabStatus" Style="{StaticResource Hint}" Margin="0,8,0,0" Foreground="{StaticResource Accent}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" Width="440">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H}" Text="Custom explosion on the keyboard"/>
+                                <CheckBox x:Name="UseStreamBox" Content="Use my own explosion instead of a built-in mode" Checked="UseStream_Changed" Unchecked="UseStream_Changed"/>
+                                <TextBlock Style="{StaticResource Hint}" Margin="0,2,0,8" Text="Your keyboard only accepts about 7 light updates per second, so this is a choppy flash. Use the built-in Reaction mode for smooth."/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="120"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions><RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/><RowDefinition Height="34"/></Grid.RowDefinitions>
+                                    <TextBlock Text="Burst style"/>
+                                    <ComboBox Grid.Column="1" SelectedValuePath="Tag" SelectedValue="{Binding Keyboard.Style}">
+                                        <ComboBoxItem Tag="Explosion" Content="Explosion (core + ring)"/>
+                                        <ComboBoxItem Tag="Fireworks" Content="Fireworks (sparkling ring)"/>
+                                        <ComboBoxItem Tag="Shockwave" Content="Shockwave (double ring)"/>
+                                        <ComboBoxItem Tag="Pulse" Content="Pulse (glow around key)"/>
+                                        <ComboBoxItem Tag="Ripple" Content="Ripple (ring only)"/>
+                                        <ComboBoxItem Tag="Cross" Content="Cross (row and column)"/>
+                                        <ComboBoxItem Tag="Spiral" Content="Spiral"/>
+                                        <ComboBoxItem Tag="Sparkle" Content="Sparkle"/>
+                                        <ComboBoxItem Tag="Wave" Content="Wave (sideways)"/>
+                                        <ComboBoxItem Tag="Key" Content="Just the pressed key"/>
+                                    </ComboBox>
+                                    <TextBlock Grid.Row="1" Text="Background"/>
+                                    <ComboBox x:Name="BgBox" Grid.Row="1" Grid.Column="1" DisplayMemberPath="Name" SelectedValuePath="Tag" SelectedValue="{Binding Keyboard.Base}"/>
+                                    <TextBlock Grid.Row="2" Text="Background color"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Keyboard.BaseColor, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Grid.Row="3" Text="Burst color"/>
+                                    <DockPanel Grid.Row="3" Grid.Column="1"><CheckBox DockPanel.Dock="Right" Content="Random" Margin="8,0,0,0" IsChecked="{Binding Keyboard.RainbowBurst}"/><TextBox Text="{Binding Keyboard.BurstColor, UpdateSourceTrigger=PropertyChanged}"/></DockPanel>
+                                    <TextBlock Grid.Row="4" Text="Brightness"/>
+                                    <DockPanel Grid.Row="4" Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="48" TextAlignment="Right" Text="{Binding Keyboard.Brightness, StringFormat={}{0}%}"/><Slider Minimum="5" Maximum="100" Value="{Binding Keyboard.Brightness}"/></DockPanel>
+                                    <TextBlock Grid.Row="5" Text="Distance (keys)"/>
+                                    <DockPanel Grid.Row="5" Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="48" TextAlignment="Right" Text="{Binding Keyboard.RadiusKeys}"/><Slider Minimum="1" Maximum="24" Value="{Binding Keyboard.RadiusKeys}"/></DockPanel>
+                                    <TextBlock Grid.Row="6" Text="Duration"/>
+                                    <DockPanel Grid.Row="6" Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="56" TextAlignment="Right" Text="{Binding Keyboard.DurationMs, StringFormat={}{0}ms}"/><Slider Minimum="400" Maximum="2500" Value="{Binding Keyboard.DurationMs}"/></DockPanel>
+                                    <TextBlock Grid.Row="7" Text="Burst speed"/>
+                                    <DockPanel Grid.Row="7" Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="56" TextAlignment="Right" Text="{Binding Keyboard.BurstSpeedPercent, StringFormat={}{0}%}"/><Slider Minimum="25" Maximum="400" Value="{Binding Keyboard.BurstSpeedPercent}"/></DockPanel>
+                                    <TextBlock Grid.Row="8" Text="Background speed"/>
+                                    <DockPanel Grid.Row="8" Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="56" TextAlignment="Right" Text="{Binding Keyboard.BgSpeedPercent, StringFormat={}{0}%}"/><Slider Minimum="25" Maximum="400" Value="{Binding Keyboard.BgSpeedPercent}"/></DockPanel>
+                                    <TextBlock Grid.Row="9" Text="Burst colors"/>
+                                    <ComboBox Grid.Row="9" Grid.Column="1" SelectedValuePath="Tag" SelectedValue="{Binding Keyboard.BurstColorMode}">
+                                        <ComboBoxItem Tag="Fixed" Content="The burst color above"/>
+                                        <ComboBoxItem Tag="Random" Content="Random color each press"/>
+                                        <ComboBoxItem Tag="Rainbow" Content="Rainbow, changes over time"/>
+                                        <ComboBoxItem Tag="Fire" Content="Fire (white, yellow, orange, red)"/>
+                                    </ComboBox>
+                                </Grid>
+                                <CheckBox Margin="0,8,0,0" Content="Mouse clicks also flash the keyboard" IsChecked="{Binding Keyboard.OnMouse}"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Button Style="{StaticResource Primary}" Content="Test burst" Click="TestKb_Click"/>
+                                    <Button Content="LED order test" Click="LedTest_Click"/>
+                                </StackPanel>
+                                <TextBlock x:Name="KbStatus" Style="{StaticResource Hint}" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" Width="440">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H}" Text="Audio reactive keyboard"/>
+                                <CheckBox x:Name="AudioBox" Content="React to the sound my PC is playing" IsChecked="{Binding Keyboard.AudioEnabled}"/>
+                                <TextBlock Style="{StaticResource Hint}" Margin="0,2,0,8" Text="Runs through the custom stream (about 7 updates per second), on top of the Background chosen in the card next to it. So you can show Rainbow, Neon stream or any other recorded mode and have the music ride on top of it."/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="120"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions><RowDefinition Height="34"/><RowDefinition Height="34"/></Grid.RowDefinitions>
+                                    <TextBlock Text="Style"/>
+                                    <ComboBox Grid.Column="1" SelectedValuePath="Tag" SelectedValue="{Binding Keyboard.AudioStyle}">
+                                        <ComboBoxItem Tag="Equalizer" Content="Equalizer bars"/>
+                                        <ComboBoxItem Tag="Beat" Content="Beat flash (whole keyboard)"/>
+                                        <ComboBoxItem Tag="Bass" Content="Bass explosions"/>
+                                        <ComboBoxItem Tag="Flow" Content="Color flow by pitch"/>
+                                    </ComboBox>
+                                    <TextBlock Grid.Row="1" Text="Sensitivity"/>
+                                    <DockPanel Grid.Row="1" Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="48" TextAlignment="Right" Text="{Binding Keyboard.AudioSensitivity}"/><Slider Minimum="0" Maximum="100" Value="{Binding Keyboard.AudioSensitivity}"/></DockPanel>
+                                </Grid>
+                                <TextBlock x:Name="AudioStatus" Style="{StaticResource Hint}" Margin="0,8,0,0"/>
+                                <TextBlock Style="{StaticResource Hint}" Margin="0,4,0,0" Text="Needs 'Use my own explosion' turned on to show on the real keyboard. The preview above shows it right away."/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" Width="440">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H}" Text="Mouse lighting (stored inside the mouse)"/>
+                                <TextBlock Style="{StaticResource Hint}" Text="The mouse keeps its lighting setup in its own memory, so changing it is a full save that takes about 5 seconds and can't be done per click. Pick the setup that reacts to clicks. Close the Gaming Mouse app first."/>
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <ComboBox x:Name="MouseVarBox" Width="200" Margin="0,0,8,0"/>
+                                    <Button Content="Apply to mouse" Click="MouseVar_Click"/>
+                                </StackPanel>
+                                <ProgressBar x:Name="MouseProg" Height="6" Margin="0,8,8,0" Minimum="0" Maximum="100"/>
+                                <TextBlock x:Name="MouseNote" Style="{StaticResource Hint}" Margin="0,8,0,0"/>
+                                <Border BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Margin="0,12,0,0" Padding="0,10,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Click explosion and music on the mouse" FontWeight="SemiBold"/>
+                                        <TextBlock Style="{StaticResource Hint}" Margin="0,2,0,6" Text="Pulses the mouse's lights on every click using the same fast command its Music-lighting feature uses, so it is not a slow save. The color comes from the mouse's own music animation. If the mouse stays in an odd mode afterwards, press Apply to mouse above to put it back."/>
+                                        <CheckBox Content="Pulse the mouse lights when I click" IsChecked="{Binding Mouse.ClickPulse}"/>
+                                        <CheckBox Content="Mouse lights follow the music" IsChecked="{Binding Mouse.AudioReactive}"/>
+                                        <Grid Margin="0,8,0,0">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="100"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions><RowDefinition Height="32"/><RowDefinition Height="30"/><RowDefinition Height="30"/><RowDefinition Height="30"/><RowDefinition Height="30"/><RowDefinition Height="32"/><RowDefinition Height="32"/><RowDefinition Height="32"/></Grid.RowDefinitions>
+                                            <TextBlock Text="Pulse style"/>
+                                            <ComboBox x:Name="PulseStyleBox" Grid.Column="1" DisplayMemberPath="Name" SelectedValuePath="Tag" SelectedValue="{Binding Mouse.PulseStyle}"/>
+                                            <TextBlock Grid.Row="1" Text="Reach"/>
+                                            <DockPanel Grid.Row="1" Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="40" TextAlignment="Right" Text="{Binding Mouse.PulseStrength}"/><Slider Minimum="1" Maximum="7" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding Mouse.PulseStrength}"/></DockPanel>
+                                            <TextBlock Grid.Row="2" Text="Speed"/>
+                                            <DockPanel Grid.Row="2" Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="48" TextAlignment="Right" Text="{Binding Mouse.PulseSpeedPercent, StringFormat={}{0}%}"/><Slider Minimum="25" Maximum="400" Value="{Binding Mouse.PulseSpeedPercent}"/></DockPanel>
+                                            <TextBlock Grid.Row="3" Text="Hold"/>
+                                            <DockPanel Grid.Row="3" Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="56" TextAlignment="Right" Text="{Binding Mouse.PulseHoldMs, StringFormat={}{0} ms}"/><Slider Minimum="0" Maximum="500" Value="{Binding Mouse.PulseHoldMs}"/></DockPanel>
+                                            <TextBlock Grid.Row="4" Text="Music gain"/>
+                                            <DockPanel Grid.Row="4" Grid.Column="1"><TextBlock DockPanel.Dock="Right" Width="40" TextAlignment="Right" Text="{Binding Mouse.AudioSensitivity}"/><Slider Minimum="0" Maximum="100" Value="{Binding Mouse.AudioSensitivity}"/></DockPanel>
+                                            <TextBlock Grid.Row="5" Text="Pulse type"/>
+                                            <ComboBox Grid.Row="5" Grid.Column="1" SelectedValuePath="Tag" SelectedValue="{Binding Mouse.PulseMode}">
+                                                <ComboBoxItem Tag="Zones" Content="All zones at once (symmetrical)"/>
+                                                <ComboBoxItem Tag="Bar" Content="Level bar (sweeps left to right)"/>
+                                            </ComboBox>
+                                            <TextBlock Grid.Row="6" Text="Flashing zones"/>
+                                            <ComboBox Grid.Row="6" Grid.Column="1" SelectedValuePath="Tag" SelectedValue="{Binding Mouse.PulseZones}">
+                                                <ComboBoxItem Tag="Both" Content="Both groups"/>
+                                                <ComboBoxItem Tag="A" Content="Group A only"/>
+                                                <ComboBoxItem Tag="B" Content="Group B only"/>
+                                            </ComboBox>
+                                            <TextBlock Grid.Row="7" Text="Between clicks"/>
+                                            <ComboBox Grid.Row="7" Grid.Column="1" SelectedValuePath="Tag" SelectedValue="{Binding Mouse.IdleLight}">
+                                                <ComboBoxItem Tag="Off" Content="Lights off, clicks flash on"/>
+                                                <ComboBoxItem Tag="All" Content="Lights on, clicks blink off"/>
+                                                <ComboBoxItem Tag="A" Content="Group A stays on"/>
+                                                <ComboBoxItem Tag="B" Content="Group B stays on"/>
+                                            </ComboBox>
+                                        </Grid>
+                                        <TextBlock x:Name="MouseLiveStatus" Style="{StaticResource Hint}" Margin="0,4,0,0"/>
+                                        <WrapPanel Margin="0,6,0,0">
+                                            <Button Margin="0,0,8,6" Content="Test pulse (4 times)" Click="MousePulseTest_Click"/>
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ===================== GAMES ===================== -->
+            <TabItem Header="Keyboard games" Padding="12,6">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <WrapPanel Orientation="Horizontal">
+                        <Border Style="{StaticResource Card}" Width="300">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H}" Text="Play on your keyboard"/>
+                                <ListBox x:Name="GameList" Height="210" DisplayMemberPath="Name"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Button Style="{StaticResource Primary}" Content="Play" Click="GamePlay_Click"/>
+                                    <Button Content="Stop (or press Esc)" Click="GameStop_Click"/>
+                                </StackPanel>
+                                <TextBlock x:Name="GameHelp" Style="{StaticResource Hint}" Margin="0,10,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Card}" Width="560">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,8">
+                                    <TextBlock DockPanel.Dock="Left" Style="{StaticResource H}" Text="Screen"/>
+                                    <TextBlock x:Name="GameScore" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                                </DockPanel>
+                                <local:GameView x:Name="GameScreen"/>
+                                <TextBlock Style="{StaticResource Hint}" Margin="0,8,0,0" Text="The game is drawn on the 14 x 5 block of keys on the left side of your keyboard and on this screen at the same time. While a game runs, the arrow keys, WASD, Space and Enter belong to the game (Esc quits). The keyboard refreshes about 7 times per second, so every game is built around that."/>
+                                <TextBlock x:Name="GameBest" Style="{StaticResource Hint}" Margin="0,6,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ===================== LAB ===================== -->
+            <TabItem Header="Lab" Padding="12,6">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <WrapPanel Orientation="Horizontal">
+                        <Border x:Name="CrossCard" Style="{StaticResource Card}" Width="440">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H}" Text="Cross-device ripples"/>
+                                <CheckBox Content="Screen, mouse and keyboard act as one" IsChecked="{Binding CrossRipples}"/>
+                                <TextBlock Style="{StaticResource Hint}" Margin="0,2,0,8" Text="Click anywhere and a wave runs down your screen toward the keyboard. When it arrives, the keyboard lights burst under where you clicked. Press a key and a wave rises from the keyboard up the screen to your pointer, then the mouse flashes. Turn on 'Use my own explosion' for the keyboard side."/>
+                                <DockPanel><TextBlock DockPanel.Dock="Left" Width="80" Text="Wave speed"/><TextBlock DockPanel.Dock="Right" Width="90" TextAlignment="Right" Text="{Binding CrossSpeed, StringFormat={}{0} px/s}"/><Slider Minimum="400" Maximum="4000" Value="{Binding CrossSpeed}"/></DockPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border x:Name="TypingCard" Style="{StaticResource Card}" Width="440">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H}" Text="Typing rhythm and garden"/>
+                                <TextBlock Style="{StaticResource Hint}" Text="Both are keyboard backgrounds. Open the Keyboard &amp; mouse lights tab, turn on 'Use my own explosion', and choose them under Background."/>
+                                <TextBlock Margin="0,8,0,0" FontWeight="SemiBold" Text="Typing rhythm"/>
+                                <TextBlock Style="{StaticResource Hint}" Text="Cool blue when you type slowly, warming through purple to red as you speed up. The glow flows faster with your speed and calms down when you pause. The top row counts your streak, and a flash marks 10, 25, 50, 100 and 200 keys in a row."/>
+                                <TextBlock Margin="0,8,0,0" FontWeight="SemiBold" Text="Garden"/>
+                                <TextBlock Style="{StaticResource Hint}" Text="A little night garden on the 14 x 5 key block. Every key you press makes a plant grow and sends a firefly up. Fully grown plants bloom in color. It is remembered between days, so it keeps growing."/>
+                                <Button Margin="0,8,0,0" HorizontalAlignment="Left" Content="Reset the garden" Click="ResetGarden_Click"/>
+                            </StackPanel>
+                        </Border>
+                        <Border x:Name="AlertCard" Style="{StaticResource Card}" Width="900">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource H}" Text="Notification lights"/>
+                                <CheckBox Content="Light up my keyboard and mouse when something needs me" IsChecked="{Binding Alerts.Enabled}"/>
+                                <WrapPanel>
+                                    <CheckBox Content="Programs that flash their taskbar button (Discord, mail, Teams…)" IsChecked="{Binding Alerts.TaskbarFlash}"/>
+                                    <CheckBox Content="Battery low" IsChecked="{Binding Alerts.Battery}"/>
+                                    <CheckBox Content="CPU maxed out" IsChecked="{Binding Alerts.Cpu}"/>
+                                </WrapPanel>
+                                <TextBlock Style="{StaticResource Hint}" Margin="0,4,0,6" Text="The keyboard shows alerts as colored pulses when 'Use my own explosion' is on. The mouse pulses when the click pulse is on. A balloon shows in the tray either way. Pick a color per program:"/>
+                                <DataGrid x:Name="AlertGrid" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True" HeadersVisibility="Column" Height="170" Background="White" BorderBrush="{StaticResource Line}" ItemsSource="{Binding Alerts.Apps}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Program name contains" Binding="{Binding App}" Width="*"/>
+                                        <DataGridTextColumn Header="Color (#RRGGBB)" Binding="{Binding Color}" Width="160"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <Button Margin="0,8,0,0" HorizontalAlignment="Left" Content="Test an alert" Click="TestAlert_Click"/>
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ===================== REMAPS ===================== -->
+            <TabItem Header="Key remapping" Padding="12,6">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,8" Text="Make one key or mouse button do something else. Source examples: CapsLock, F13, MouseX1 (side button), MouseMiddle. Key target examples: Ctrl+C, Escape, VolumeUp. Applies to this profile only."/>
+                    <DataGrid Grid.Row="1" x:Name="RemapGrid" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal" Background="White" BorderBrush="{StaticResource Line}" RowHeight="30" ItemsSource="{Binding Remaps}">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Header="On" Binding="{Binding Enabled}" Width="44"/>
+                            <DataGridTextColumn Header="When I press" Binding="{Binding Source, UpdateSourceTrigger=LostFocus}" Width="160"/>
+                            <DataGridComboBoxColumn Header="Do this" x:Name="ActionCol" SelectedItemBinding="{Binding Action}" Width="130"/>
+                            <DataGridTextColumn Header="Target / text / program / macro name" Binding="{Binding Target}" Width="*"/>
+                            <DataGridTextColumn Header="Note" Binding="{Binding Note}" Width="180"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button Content="Capture a key…" Click="CaptureKey_Click"/>
+                        <TextBlock x:Name="CaptureText" Style="{StaticResource Hint}" VerticalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource Hint}" Margin="14,0,0,0" VerticalAlignment="Center" Text="Select a row and press Delete to remove it. Emergency off switch: Ctrl+Alt+Shift+F12."/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- ===================== AUTO TOOLS ===================== -->
+            <TabItem Header="Auto tools" Padding="12,6">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <StackPanel Margin="0,0,0,8">
+                        <TextBlock Style="{StaticResource Hint}" Text="Auto clicker and key repeater for idle and clicker games, office work, testing and accessibility. Press the hotkey to start and stop (or hold it, in Hold mode). Up to 30 presses per second."/>
+                        <Border Background="#FFF4E5" BorderBrush="#F0C27B" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,8,0,0">
+                            <TextBlock TextWrapping="Wrap" Text="Safety lock: these tools switch themselves off and refuse to start when a game, a game-library program, an anti-cheat or a full-screen game is running. This protects you from bans and keeps them out of competitive play. The lock cannot be turned off. Add more programs below if you want."/>
+                        </Border>
+                        <TextBlock x:Name="GuardStatus" Margin="0,8,0,0" FontWeight="SemiBold"/>
+                    </StackPanel>
+                    <DataGrid Grid.Row="1" x:Name="AutoGrid" AutoGenerateColumns="False" CanUserAddRows="True" CanUserDeleteRows="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal" Background="White" BorderBrush="{StaticResource Line}" RowHeight="30" ItemsSource="{Binding AutoTools}">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Header="On" Binding="{Binding Enabled}" Width="44"/>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="140"/>
+                            <DataGridComboBoxColumn Header="Presses" x:Name="AutoKindCol" SelectedItemBinding="{Binding Kind}" Width="80"/>
+                            <DataGridTextColumn Header="Button / key" Binding="{Binding Target}" Width="100"/>
+                            <DataGridTextColumn Header="Per second" Binding="{Binding Cps}" Width="80"/>
+                            <DataGridTextColumn Header="Hotkey" Binding="{Binding Hotkey}" Width="80"/>
+                            <DataGridComboBoxColumn Header="Mode" x:Name="AutoModeCol" SelectedItemBinding="{Binding Mode}" Width="90"/>
+                            <DataGridTextColumn Header="Stop after (0 = never)" Binding="{Binding Limit}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel Grid.Row="2" Margin="0,8,0,0">
+                        <TextBlock Style="{StaticResource Hint}" Text="Extra programs where automation stays off (one per line, no .exe):"/>
+                        <TextBox x:Name="ExtraGamesBox" Height="60" AcceptsReturn="True" VerticalContentAlignment="Top" LostFocus="ExtraGames_LostFocus"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- ===================== MACROS ===================== -->
+            <TabItem Header="Macros" Padding="12,6">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <DockPanel Margin="0,0,12,0">
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,8,0,0">
+                            <Button Content="Add" Click="AddMacro_Click"/><Button Content="Delete" Click="DelMacro_Click"/>
+                        </StackPanel>
+                        <ListBox x:Name="MacroList" DisplayMemberPath="Name" SelectionChanged="MacroList_Changed"/>
+                    </DockPanel>
+                    <Border Grid.Column="1" Style="{StaticResource Card}" Margin="0">
+                        <Grid x:Name="MacroEditor">
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="130"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="70"/></Grid.ColumnDefinitions>
+                                <TextBlock Text="Name" Margin="0,0,8,0"/>
+                                <TextBox Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Grid.Column="2" Text="Runs" Margin="14,0,8,0"/>
+                                <ComboBox Grid.Column="3" SelectedValuePath="Tag" SelectedValue="{Binding Mode}">
+                                    <ComboBoxItem Tag="Once" Content="Once"/>
+                                    <ComboBoxItem Tag="WhileHeld" Content="While key is held"/>
+                                    <ComboBoxItem Tag="Toggle" Content="Toggle on/off"/>
+                                </ComboBox>
+                                <TextBlock Grid.Column="4" Text="Repeat" Margin="14,0,8,0"/>
+                                <TextBox Grid.Column="5" Text="{Binding Repeat, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+                            <TextBlock Grid.Row="1" Style="{StaticResource Hint}" Margin="0,8,0,6" Text="One step per line: press Ctrl+C · down Shift · up Shift · text Hello · delay 100 · click left (or right, middle, x1, x2) · wheel -3 · run notepad.exe · # comment. Then add a remap whose action is Macro and whose target is this macro's name."/>
+                            <TextBox Grid.Row="2" Text="{Binding Script, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" VerticalScrollBarVisibility="Auto" FontFamily="Consolas" Height="Auto" VerticalContentAlignment="Top" Padding="6"/>
+                            <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,8,0,0">
+                                <Button Style="{StaticResource Primary}" Content="Run now" Click="RunMacro_Click"/>
+                                <Button Content="Stop" Click="StopMacro_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- ===================== APPS ===================== -->
+            <TabItem Header="Profiles &amp; apps" Padding="12,6">
+                <StackPanel Width="620" HorizontalAlignment="Left">
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource H}" Text="Use this profile automatically in these programs"/>
+                            <CheckBox x:Name="AutoSwitchBox" Content="Switch profiles automatically when I change program" Checked="AutoSwitch_Changed" Unchecked="AutoSwitch_Changed"/>
+                            <CheckBox Content="This is the default profile (used when no other profile matches)" IsChecked="{Binding IsDefault}" Click="IsDefault_Click"/>
+                            <TextBlock Text="Program names, one per line (without .exe), e.g. valorant, chrome, code" Style="{StaticResource Hint}" Margin="0,10,0,4"/>
+                            <TextBox x:Name="AppsBox" Height="110" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top" LostFocus="AppsBox_LostFocus"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <ComboBox x:Name="RunningBox" Width="260" Margin="0,0,8,0" DropDownOpened="RunningBox_Opened"/>
+                                <Button Content="Add this program" Click="AddRunning_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </TabItem>
+
+            <!-- ===================== SETTINGS ===================== -->
+            <TabItem Header="Settings" Padding="12,6">
+                <StackPanel Width="620" HorizontalAlignment="Left">
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <CheckBox x:Name="StartupBox" Content="Start InputFX when I sign in to Windows" Checked="Startup_Changed" Unchecked="Startup_Changed"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <Button Content="Open settings folder" Click="OpenFolder_Click"/>
+                                <Button Content="Open log" Click="OpenLog_Click"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource Hint}" Margin="0,12,0,0" Text="Closing this window keeps InputFX running in the tray (bottom-right, near the clock). Right-click the tray icon to quit. Ctrl+Alt+Shift+F12 pauses or resumes everything, including remaps, if something ever misbehaves."/>
+                            <TextBlock Style="{StaticResource Hint}" Margin="0,8,0,0" Text="InputFX does not log what you type. It only reads key presses to trigger effects and your remaps."/>
+                            <TextBlock Style="{StaticResource Hint}" Margin="0,8,0,0"><Run x:Name="AboutVersion" Text="InputFX"/> · MIT license · <Hyperlink NavigateUri="https://github.com/hunterprom/InputFX" RequestNavigate="Repo_RequestNavigate">github.com/hunterprom/InputFX</Hyperlink></TextBlock>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+
+        <TextBlock Grid.Row="2" Style="{StaticResource Hint}" Margin="0,8,0,0" x:Name="FootText"/>
+    </Grid>
+</Window>

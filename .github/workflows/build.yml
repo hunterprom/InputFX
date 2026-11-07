@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build
+        run: dotnet build src/InputFX/InputFX.csproj -c Release
+
+      - name: Self-test
+        shell: pwsh
+        run: |
+          $p = Start-Process src/InputFX/bin/Release/net10.0-windows/InputFX.exe -ArgumentList '--selftest' -PassThru -Wait
+          $report = Join-Path $env:APPDATA 'InputFX\selftest.txt'
+          Get-Content $report
+          if ($p.ExitCode -ne 0) { throw "selftest exited with $($p.ExitCode)" }
+          if (Select-String -Path $report -Pattern 'FAILED' -Quiet) { throw 'selftest reported a failure' }
+          if (-not (Select-String -Path $report -Pattern 'kb template frame ok' -Quiet)) { throw 'selftest did not finish' }
+
+      - name: Publish (framework-dependent)
+        run: dotnet publish src/InputFX/InputFX.csproj -c Release -o publish --self-contained false
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: InputFX
+          path: publish/
